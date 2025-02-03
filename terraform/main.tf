@@ -80,7 +80,7 @@ module "eks" {
     }
   }
   manage_aws_auth_configmap   = true
-  create_cloudwatch_log_group = true
+  #create_cloudwatch_log_group = true
 
 
   eks_managed_node_group_defaults = {
