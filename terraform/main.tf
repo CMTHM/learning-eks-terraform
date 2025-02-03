@@ -12,7 +12,7 @@ terraform {
     profile = ""
     encrypt = "true"
 
-    dynamodb_table = "biswa-demo-lock"
+   # dynamodb_table = "biswa-demo-lock"
   }
 }
 provider "aws" {
@@ -42,14 +42,10 @@ module "vpc" {
 
   azs             = local.azs
   private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  #enable_nat_gateway = true
+  #single_nat_gateway = true
 
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
@@ -71,7 +67,7 @@ module "eks" {
   cluster_endpoint_private_access = true
   cluster_ip_family               = "ipv4"
   vpc_id                          = module.vpc.vpc_id
-  subnet_ids                      = concat(module.vpc.private_subnets, module.vpc.public_subnets)
+  subnet_ids                      = concat(module.vpc.private_subnets)
   cluster_addons = {
     coredns = {
       most_recent = true
@@ -89,8 +85,8 @@ module "eks" {
 
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
-    instance_types = ["t3a.medium"]
-    disk_size      = 20
+    instance_types = ["t2.micro"]
+    disk_size      = 4
     subnet_ids     = module.vpc.private_subnets
   }
   eks_managed_node_groups = var.eks_managed_node_groups
